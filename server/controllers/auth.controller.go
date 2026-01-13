@@ -10,9 +10,15 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type RegisterInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -66,7 +72,45 @@ func Register(c *fiber.Ctx) error {
 }
 
 func Login(c *fiber.Ctx) error {
+	var input LoginInput
+
+	if err := c.BodyParser(&input); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
+	}
+
+	var user models.User
+
+	err := config.DB.QueryRow(
+		"SELECT id, email, password_hash, salt FROM users WHERE email=$1",
+		input.Email,
+	).Scan(&user.ID, &user.Email, &user.PasswordHash, &user.Salt)
+
+	if err != nil {
+		return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials"})
+	}
+
+	err = bcrypt.CompareHashAndPassword(
+		[]byte(user.PasswordHash),
+		[]byte(input.Password+user.Salt),
+	)
+
+	if err != nil {
+		return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials"})
+	}
+
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+
+	claims["user_id"] = user.ID
+	claims["email"] = user.Email
+
+	signedToken, err := token.SignedString(config.JWTSecret)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Token generation failed"})
+	}
+
 	return c.JSON(fiber.Map{
-		"message": "Login endpoint coming soon",
+		"token": signedToken,
 	})
 }
+
