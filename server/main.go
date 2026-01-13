@@ -1,18 +1,10 @@
-/*
-Royal Vault Backend API
-
-File: main.go
-Purpose: API server entry point
-Tech: Golang, Fiber
-
-This server handles authentication, vault storage,
-and user management. It never handles plaintext secrets.
-*/
-
 package main
 
 import (
 	"log"
+
+	"royal-vault/config"
+	"royal-vault/routes"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -20,10 +12,12 @@ import (
 func main() {
 	app := fiber.New()
 
+	config.ConnectDB()
+
+	routes.AuthRoutes(app)
+
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"status": "Royal Vault API running",
-		})
+		return c.JSON(fiber.Map{"status": "Royal Vault API running"})
 	})
 
 	log.Fatal(app.Listen(":5000"))
