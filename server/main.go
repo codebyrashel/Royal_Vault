@@ -15,6 +15,7 @@ func main() {
 	config.ConnectDB()
 
 	routes.AuthRoutes(app)
+	routes.VaultRoutes(app)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "Royal Vault API running"})
