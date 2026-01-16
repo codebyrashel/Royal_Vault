@@ -28,3 +28,56 @@ These components are currently independent. API endpoints and data models will b
 - No authentication or API integration yet.
 
 More details will be added as the project evolves.
+
+## Data Model (ERD-Level)
+
+### Entities
+
+**User**
+- `id` (UUID or integer)
+- `email` (unique)
+- `password_hash` (for login authentication)
+- `created_at`
+- `updated_at`
+
+**Vault**
+- `id`
+- `user_id` (FK → User.id, 1:1)
+- `encrypted_vault_key` (string or bytea)
+- `created_at`
+- `updated_at`
+
+**Folder**
+- `id`
+- `user_id` (FK → User.id)
+- `name`
+- `created_at`
+- `updated_at`
+
+**Credential**
+- `id`
+- `vault_id` (FK → Vault.id)
+- `folder_id` (FK → Folder.id, nullable)
+- `title` (may be stored in plaintext)
+- `url` (may be stored in plaintext)
+- `encrypted_username`
+- `encrypted_password`
+- `encrypted_notes` (nullable)
+- `created_at`
+- `updated_at`
+
+**SecurityQuestion**
+- `id`
+- `credential_id` (FK → Credential.id)
+- `encrypted_question`
+- `encrypted_answer`
+- `created_at`
+- `updated_at`
+
+### Relationships
+
+- User 1 — 1 Vault
+- User 1 — N Folders
+- Vault 1 — N Credentials
+- Folder 1 — N Credentials (optional)
+- Credential 1 — N SecurityQuestions
