@@ -4,8 +4,15 @@ The backend is a Go HTTP API.
 
 ## Tech Stack
 
-- Go (standard library for HTTP, more libraries will be added later)
+- Go
+- Gin (HTTP routing)
 - Planned database: PostgreSQL
+
+## Project Structure (current)
+
+- `server/main.go` – application entry point and server startup
+- `server/internal/handlers` – HTTP handlers (e.g., health check)
+- `server/internal/routes` – route registration and Gin engine setup
 
 ## Development
 

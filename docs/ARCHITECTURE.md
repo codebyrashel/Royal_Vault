@@ -12,12 +12,11 @@ This document describes the overall system design of Royal Vault, a secure crede
 
 ## Current State
 
-```markdown
 - Frontend:
   - Vue 3 + TypeScript app in `client/`, created with Vite.
 - Backend:
-  - Go HTTP server in `server/` with a basic `/health` endpoint.
-```
+  - Go HTTP server in `server/` using Gin, with a basic `/health` endpoint.
+
 These components are currently independent. API endpoints and data models will be added in later steps.
 
 ### UI State
@@ -26,6 +25,16 @@ These components are currently independent. API endpoints and data models will b
   - Landing page (`/`)
   - Dashboard placeholder (`/dashboard`)
 - No authentication or API integration yet.
+
+### Backend Layering
+
+- HTTP framework: Gin
+- Handlers:
+  - Located in `server/internal/handlers`
+  - Responsible for translating HTTP requests to business logic calls and returning responses
+- Routes:
+  - Located in `server/internal/routes`
+  - Responsible for wiring endpoints (paths/methods) to handlers
 
 More details will be added as the project evolves.
 

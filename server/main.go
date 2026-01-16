@@ -4,30 +4,27 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-)
+	"os"
 
-const (
-	defaultPort = "8080"
+	"github.com/codebyrashel/Royal_Vault/server/internal/routes"
 )
 
 func main() {
-	http.HandleFunc("/health", healthHandler)
+	port := getPort()
+	router := routes.SetupRouter()
 
-	addr := ":" + defaultPort
+	addr := fmt.Sprintf(":%s", port)
 	fmt.Printf("Server is running on http://localhost%s\n", addr)
 
-	if err := http.ListenAndServe(addr, nil); err != nil {
+	if err := router.Run(addr); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("failed to start server: %v", err)
 	}
 }
 
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
+func getPort() string {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte(`{"status":"ok"}`))
+	return port
 }
