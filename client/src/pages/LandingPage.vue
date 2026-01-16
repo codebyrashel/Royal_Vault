@@ -15,10 +15,10 @@
     <main class="app-main">
       <section class="hero">
         <div class="hero-content">
-          <h1>One master key for all your credentials.</h1>
+          <h1>One master key for all your credentials</h1>
           <p>
             Royal Vault is a zero-knowledge password manager that keeps your
-            accounts organized and your secrets encrypted — even from us.
+            accounts organized and your secrets encrypted - even from us.
           </p>
           <div class="hero-actions">
             <button class="primary-btn" @click="$router.push('/dashboard')">
@@ -140,8 +140,15 @@
   padding: 2rem 0;
 }
 
+.hero-content{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
 .hero-content h1 {
-  font-size: 2rem;
+  font-size: 2.5rem;
   margin-bottom: 1rem;
   color: #111827;
 }
