@@ -59,3 +59,26 @@ The app will be available at `http://localhost:5173` by default.
    - Derives key from master password.
    - Decrypts `encryptedVaultKey` to get the vault key.
    - Uses vault key to decrypt credentials retrieved from the API.
+
+## Cryptography Utilities
+
+The frontend implements client-side encryption helpers in `src/utils/crypto.ts`:
+
+- `deriveKeyFromPassword(password, salt?)`  
+  Derives a symmetric key from a master password using PBKDF2 (`SHA-256`, 150,000 iterations). Returns:
+  - `key`: `CryptoKey` for AES-GCM encryption/decryption
+  - `salt`: `Uint8Array` used for derivation (must be stored and reused on login)
+
+- `generateVaultKey()`  
+  Generates a random 256-bit AES-GCM key used as the vault key.
+
+- `exportKey(key)` / `importVaultKey(raw)`  
+  Convert between `CryptoKey` and raw `Uint8Array` form for storage/encryption.
+
+- `encryptText(key, plaintext)` / `decryptText(key, payload)`  
+  Encrypt/decrypt arbitrary strings using AES-GCM. IV and ciphertext are returned/stored as base64 strings.
+
+There is a temporary development page at `/crypto-test` that verifies:
+
+- A vault key can be encrypted and decrypted using a master password-derived key.
+- Arbitrary plaintext can be encrypted and decrypted correctly using the vault key.
