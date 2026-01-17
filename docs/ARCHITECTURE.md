@@ -36,6 +36,14 @@ These components are currently independent. API endpoints and data models will b
   - Located in `server/internal/routes`
   - Responsible for wiring endpoints (paths/methods) to handlers
 
+### Database Layer
+
+- PostgreSQL stores:
+  - Users and hashed login passwords
+  - Vault metadata and encrypted vault keys
+  - Folders, credentials, and security questions (encrypted fields where applicable)
+- The Go backend uses a thin wrapper around `database/sql` in `server/internal/db` to manage the connection.
+
 More details will be added as the project evolves.
 
 ## Data Model (ERD-Level)

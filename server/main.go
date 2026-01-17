@@ -6,11 +6,21 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/codebyrashel/Royal_Vault/server/internal/db"
 	"github.com/codebyrashel/Royal_Vault/server/internal/routes"
 )
 
 func main() {
 	port := getPort()
+
+	// Initialize database connection
+	database, err := db.NewDatabase()
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
+	defer database.Conn.Close()
+	fmt.Println("Connected to database successfully")
+
 	router := routes.SetupRouter()
 
 	addr := fmt.Sprintf(":%s", port)

@@ -1,0 +1,14 @@
+# Local environment variables
+.env
+
+# Node / Vue
+client/node_modules
+client/dist
+
+# Go build artifacts
+server/bin
+server/tmp
+
+# IDE settings
+.vscode
+.idea

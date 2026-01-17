@@ -8,11 +8,43 @@ The backend is a Go HTTP API.
 - Gin (HTTP routing)
 - Planned database: PostgreSQL
 
+## Database
+
+- PostgreSQL is used as the primary database.
+- For local development, PostgreSQL typically runs in a Docker container:
+  - Container name: `royal_vault_db` (suggested)
+  - Host: `localhost`
+  - Port: `5433` (example)
+  - User: `ROYAL_VAULT_DB_USER` (from local env config)
+  - Password: `ROYAL_VAULT_DB_PASSWORD` (from local env config)
+  - Database: `ROYAL_VAULT_DB_NAME` (from local env config)
+- Connection details are read from environment variables:
+  - `DB_HOST` (e.g., `localhost`)
+  - `DB_PORT` (e.g., `5433`)
+  - `DB_USER`
+  - `DB_PASSWORD`
+  - `DB_NAME`
+  - `DB_SSLMODE` (typically `disable` for local dev)
+
+### Environment Configuration
+
+Local environment variables are stored in a `.env` file (not committed to Git). An example template is provided in `.env.example`.
+
+Before running the backend locally, export the variables from `.env` into your shell:
+
+```bash
+export $(grep -v '^#' .env | xargs)
+cd server
+go run main.go
+```
+- Alternatively, you can configure these variables in your shell or development environment.
+
 ## Project Structure (current)
 
 - `server/main.go` – application entry point and server startup
 - `server/internal/handlers` – HTTP handlers (e.g., health check)
 - `server/internal/routes` – route registration and Gin engine setup
+- `server/internal/db` – database connection logic (PostgreSQL via database/sql and lib/pq)
 
 ## Development
 
