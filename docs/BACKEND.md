@@ -60,7 +60,9 @@ go run main.go
 
 ## Endpoints (current)
 
-- GET /health – basic health check returning `{"status":"ok"}`
+- `GET /health` – basic health check returning `{"status":"ok"}`
+- `POST /auth/signup` – create a new user account (login password only, no vault yet)
+- `POST /auth/login` – authenticate a user and return a JWT token
 
 ## Planned API Design
 

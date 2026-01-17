@@ -13,7 +13,6 @@ import (
 func main() {
 	port := getPort()
 
-	// Initialize database connection
 	database, err := db.NewDatabase()
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
@@ -21,7 +20,7 @@ func main() {
 	defer database.Conn.Close()
 	fmt.Println("Connected to database successfully")
 
-	router := routes.SetupRouter()
+	router := routes.SetupRouter(database.Conn)
 
 	addr := fmt.Sprintf(":%s", port)
 	fmt.Printf("Server is running on http://localhost%s\n", addr)
