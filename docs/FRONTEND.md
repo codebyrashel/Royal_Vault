@@ -82,3 +82,30 @@ There is a temporary development page at `/crypto-test` that verifies:
 
 - A vault key can be encrypted and decrypted using a master password-derived key.
 - Arbitrary plaintext can be encrypted and decrypted correctly using the vault key.
+
+
+## Current Auth UI
+
+- `/signup`
+  - Accepts:
+    - Email
+    - Login password
+    - Master password
+  - Client:
+    - Derives a master key from the master password.
+    - Generates a random vault key.
+    - Encrypts the vault key with the master key.
+    - Sends `email`, `login password`, `encryptedVaultKey`, and `salt` to the backend.
+
+- `/login`
+  - Accepts:
+    - Email
+    - Login password
+    - Master password
+  - Client:
+    - Calls `/auth/login` (email + login password).
+    - Receives `token`, `encryptedVaultKey`, and `salt`.
+    - Re-derives the master key using the master password + salt.
+    - Decrypts the vault key.
+    - Stores JWT token and decrypted vault key in an in-memory store.
+    - Redirects to `/dashboard`.
