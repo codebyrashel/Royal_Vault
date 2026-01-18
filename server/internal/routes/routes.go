@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/codebyrashel/Royal_Vault/server/internal/handlers"
+	"github.com/codebyrashel/Royal_Vault/server/internal/middleware"
 	"github.com/codebyrashel/Royal_Vault/server/internal/repositories"
 	"github.com/codebyrashel/Royal_Vault/server/internal/services"
 	"github.com/gin-contrib/cors"
@@ -14,7 +15,7 @@ import (
 func SetupRouter(db *sql.DB) *gin.Engine {
 	router := gin.Default()
 
-	// CORS configuration
+	// CORS config as before
 	config := cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -29,8 +30,13 @@ func SetupRouter(db *sql.DB) *gin.Engine {
 
 	userRepo := repositories.NewUserRepository(db)
 	vaultRepo := repositories.NewVaultRepository(db)
+	credentialRepo := repositories.NewCredentialRepository(db)
+
 	authService := services.NewAuthService(userRepo, vaultRepo)
 	authHandler := handlers.NewAuthHandler(authService)
+
+	credentialService := services.NewCredentialService(vaultRepo, credentialRepo)
+	credentialHandler := handlers.NewCredentialHandler(credentialService)
 
 	router.GET("/health", healthHandler.GetHealth)
 
@@ -38,6 +44,14 @@ func SetupRouter(db *sql.DB) *gin.Engine {
 	{
 		auth.POST("/signup", authHandler.Signup)
 		auth.POST("/login", authHandler.Login)
+	}
+
+	api := router.Group("/")
+	api.Use(middleware.AuthRequired())
+	{
+		api.GET("/credentials", credentialHandler.ListCredentials)
+		api.POST("/credentials", credentialHandler.CreateCredential)
+		// later: PUT /credentials/:id, DELETE /credentials/:id
 	}
 
 	return router

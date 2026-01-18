@@ -68,6 +68,10 @@ go run main.go
 - `GET /health` – basic health check returning `{"status":"ok"}`
 - `POST /auth/signup` – creates a new user and associated vault (stores `encryptedVaultKey` and `salt`)
 - `POST /auth/login` – authenticates a user and returns a JWT, `encryptedVaultKey`, and `salt`
+- `GET /credentials` – list all credentials for the authenticated user (encrypted fields).
+- `POST /credentials` – create a new credential (expects encrypted fields from the client).
+
+> Note that endpoints are protected with Bearer JWT.
 
 ## CORS
 
