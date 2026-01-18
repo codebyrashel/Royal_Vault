@@ -21,6 +21,10 @@ export function useAuthStore() {
     vaultKey.value = key;
   }
 
+   function isAuthenticated(): boolean {
+    return !!token.value && !!vaultKey.value;
+  }
+
   return {
     token,
     userEmail,
@@ -28,5 +32,6 @@ export function useAuthStore() {
     setAuth,
     clearAuth,
     setVaultKey,
+    isAuthenticated,
   };
 }

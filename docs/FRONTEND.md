@@ -113,3 +113,21 @@ There is a temporary development page at `/crypto-test` that verifies:
     - Decrypts the vault key.
     - Stores JWT token and decrypted vault key in an in-memory store.
     - Redirects to `/dashboard`.
+
+
+## Dashboard
+
+- Route: `/dashboard`
+- Behavior:
+  - Requires both:
+    - Auth token (JWT) from `/auth/login`.
+    - Decrypted `vaultKey` stored in memory.
+  - If either is missing, shows a warning and prompts user to log in again.
+  - On mount (when authenticated):
+    - Calls `GET /credentials` with `Authorization: Bearer <token>`.
+    - Decrypts `encryptedUsername`, `encryptedPassword`, `encryptedNotes` using the in-memory `vaultKey`.
+    - Renders a simple table of credentials.
+  - Provides a form to add a new credential:
+    - Encrypts username, password, notes with `vaultKey` using AES-GCM.
+    - Sends encrypted payload to `POST /credentials`.
+    - On success, decrypts the response and appends it to the list.
