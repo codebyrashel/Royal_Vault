@@ -64,6 +64,12 @@ async function handleSignup() {
   loading.value = true;
 
   try {
+    if (!email.value) {
+      throw new Error('Email is required');
+    }
+    if (!loginPassword.value || loginPassword.value.length < 8) {
+      throw new Error('Login password must be at least 8 characters long');
+    }
     if (!masterPassword.value) {
       throw new Error('Master password is required');
     }
@@ -78,7 +84,6 @@ async function handleSignup() {
     const vaultKeyBytes = await exportKey(vaultKey);
 
     // 3. Encrypt vault key bytes with master key
-    // convert bytes to base64 string so we can encrypt as text
     const vaultKeyBytesBase64 = window.btoa(
       String.fromCharCode(...Array.from(vaultKeyBytes))
     );
@@ -86,7 +91,6 @@ async function handleSignup() {
       masterKey,
       vaultKeyBytesBase64
     );
-
     const encryptedVaultKeyString = JSON.stringify(encryptedVaultKeyPayload);
 
     // 4. Prepare payload for backend
@@ -102,7 +106,6 @@ async function handleSignup() {
     });
 
     success.value = 'Account created. You can now log in.';
-    // Optionally redirect after a short delay
     setTimeout(() => {
       router.push('/login');
     }, 1000);

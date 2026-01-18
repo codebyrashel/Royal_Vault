@@ -36,6 +36,14 @@ These components are currently independent. API endpoints and data models will b
   - Located in `server/internal/routes`
   - Responsible for wiring endpoints (paths/methods) to handlers
 
+- Auth service:
+  - On signup:
+    - Creates a user (with hashed login password).
+    - Stores `encrypted_vault_key` and `salt` in the `vaults` table.
+  - On login:
+    - Validates login password.
+    - Returns JWT plus the user’s `encrypted_vault_key` and `salt`.
+
 ### Database Layer
 
 - PostgreSQL stores:
@@ -61,6 +69,7 @@ More details will be added as the project evolves.
 - `id`
 - `user_id` (FK → User.id, 1:1)
 - `encrypted_vault_key` (string or bytea)
+- `salt` (e.g., base64-encoded)
 - `created_at`
 - `updated_at`
 

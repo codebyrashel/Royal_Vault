@@ -60,44 +60,57 @@ async function handleLogin() {
   loading.value = true;
 
   try {
+    if (!email.value) {
+      throw new Error('Email is required');
+    }
+    if (!loginPassword.value) {
+      throw new Error('Login password is required');
+    }
     if (!masterPassword.value) {
       throw new Error('Master password is required');
     }
 
-    // 1. Call backend login (gets token, encryptedVaultKey, salt)
+    // 1. Call backend login
     const res = await login({
       email: email.value,
       password: loginPassword.value,
     });
 
-    // 2. Decode salt and derive master key again
-    const saltBytes = Uint8Array.from(
-      window.atob(res.salt),
-      (c) => c.charCodeAt(0)
-    );
-    const { key: masterKey } = await deriveKeyFromPassword(
-      masterPassword.value,
-      saltBytes
-    );
+    try {
+      // 2. Decode salt and derive master key again
+      const saltBytes = Uint8Array.from(
+        window.atob(res.salt),
+        (c) => c.charCodeAt(0)
+      );
+      const { key: masterKey } = await deriveKeyFromPassword(
+        masterPassword.value,
+        saltBytes
+      );
 
-    // 3. Parse encryptedVaultKey payload and decrypt vault key bytes
-    const encryptedVaultKeyPayload = JSON.parse(res.encryptedVaultKey);
-    const vaultKeyBytesBase64 = await decryptText(
-      masterKey,
-      encryptedVaultKeyPayload
-    );
-    const vaultKeyBytes = Uint8Array.from(
-      window.atob(vaultKeyBytesBase64),
-      (c) => c.charCodeAt(0)
-    );
-    const vaultKey = await importVaultKey(vaultKeyBytes);
+      // 3. Parse encryptedVaultKey payload and decrypt vault key bytes
+      const encryptedVaultKeyPayload = JSON.parse(res.encryptedVaultKey);
+      const vaultKeyBytesBase64 = await decryptText(
+        masterKey,
+        encryptedVaultKeyPayload
+      );
+      const vaultKeyBytes = Uint8Array.from(
+        window.atob(vaultKeyBytesBase64),
+        (c) => c.charCodeAt(0)
+      );
+      const vaultKey = await importVaultKey(vaultKeyBytes);
 
-    // 4. Save auth token and vault key in store
-    setAuth(res.token, res.email);
-    setVaultKey(vaultKey);
+      // 4. Save auth token and vault key in store
+      setAuth(res.token, res.email);
+      setVaultKey(vaultKey);
 
-    // 5. Redirect to dashboard
-    router.push('/dashboard');
+      // 5. Redirect to dashboard
+      router.push('/dashboard');
+    } catch (decryptError: any) {
+      // This usually means master password was wrong or vault data is corrupted
+      throw new Error(
+        'Master password is incorrect or vault data could not be decrypted'
+      );
+    }
   } catch (e: any) {
     error.value = e?.message ?? 'Login failed';
   } finally {

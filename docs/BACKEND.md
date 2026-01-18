@@ -26,6 +26,11 @@ The backend is a Go HTTP API.
   - `DB_NAME`
   - `DB_SSLMODE` (typically `disable` for local dev)
 
+- `vaults` table stores:
+  - `user_id` (1:1 with users)
+  - `encrypted_vault_key` (opaque string from the client)
+  - `salt` (base64-encoded salt used for deriving the master key)
+
 ### Environment Configuration
 
 Local environment variables are stored in a `.env` file (not committed to Git). An example template is provided in `.env.example`.
@@ -61,8 +66,18 @@ go run main.go
 ## Endpoints (current)
 
 - `GET /health` – basic health check returning `{"status":"ok"}`
-- `POST /auth/signup` – create a new user account (login password only, no vault yet)
-- `POST /auth/login` – authenticate a user and return a JWT token
+- `POST /auth/signup` – creates a new user and associated vault (stores `encryptedVaultKey` and `salt`)
+- `POST /auth/login` – authenticates a user and returns a JWT, `encryptedVaultKey`, and `salt`
+
+## CORS
+
+For local development, the backend enables CORS for the frontend origin:
+
+- Allowed origin: `http://localhost:5173`
+- Allowed methods: `GET`, `POST`, `PUT`, `DELETE`, `OPTIONS`
+- Allowed headers: `Origin`, `Content-Type`, `Authorization`
+
+This is configured via `github.com/gin-contrib/cors` in `server/internal/routes/routes.go`.
 
 ## Planned API Design
 

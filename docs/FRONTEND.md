@@ -60,6 +60,10 @@ The app will be available at `http://localhost:5173` by default.
    - Decrypts `encryptedVaultKey` to get the vault key.
    - Uses vault key to decrypt credentials retrieved from the API.
 
+> If the login API call succeeds but the vault key cannot be decrypted with the provided master password, the client:
+  - Shows an error: "Master password is incorrect or vault data could not be decrypted".
+  - Does not navigate to the dashboard.
+
 ## Cryptography Utilities
 
 The frontend implements client-side encryption helpers in `src/utils/crypto.ts`:
