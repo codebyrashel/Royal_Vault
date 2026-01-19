@@ -144,10 +144,11 @@ All endpoints (except signup/login) require authentication.
 ### Security Questions
 
 - `GET /credentials/:credentialId/security-questions`
+  - Returns all security questions for a given credential (encrypted).
 - `POST /security-questions`
   - Body:
     - `credentialId`
     - `encryptedQuestion`
     - `encryptedAnswer`
-- `PUT /security-questions/:id`
-- `DELETE /security-questions/:id`
+- `DELETE /security-questions/:id?credentialId=...`
+  - Deletes a security question by ID (with ownership check via credential).

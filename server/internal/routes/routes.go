@@ -15,7 +15,7 @@ import (
 func SetupRouter(db *sql.DB) *gin.Engine {
 	router := gin.Default()
 
-	// CORS config as before
+	// CORS config
 	config := cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -26,11 +26,13 @@ func SetupRouter(db *sql.DB) *gin.Engine {
 	}
 	router.Use(cors.New(config))
 
+	// Handlers and dependencies
 	healthHandler := handlers.NewHealthHandler()
 
 	userRepo := repositories.NewUserRepository(db)
 	vaultRepo := repositories.NewVaultRepository(db)
 	credentialRepo := repositories.NewCredentialRepository(db)
+	securityQuestionRepo := repositories.NewSecurityQuestionRepository(db)
 
 	authService := services.NewAuthService(userRepo, vaultRepo)
 	authHandler := handlers.NewAuthHandler(authService)
@@ -38,6 +40,14 @@ func SetupRouter(db *sql.DB) *gin.Engine {
 	credentialService := services.NewCredentialService(vaultRepo, credentialRepo)
 	credentialHandler := handlers.NewCredentialHandler(credentialService)
 
+	securityQuestionService := services.NewSecurityQuestionService(
+		vaultRepo,
+		credentialRepo,
+		securityQuestionRepo,
+	)
+	securityQuestionHandler := handlers.NewSecurityQuestionHandler(securityQuestionService)
+
+	// Public routes
 	router.GET("/health", healthHandler.GetHealth)
 
 	auth := router.Group("/auth")
@@ -46,12 +56,19 @@ func SetupRouter(db *sql.DB) *gin.Engine {
 		auth.POST("/login", authHandler.Login)
 	}
 
+	// Auth-protected API routes
 	api := router.Group("/")
 	api.Use(middleware.AuthRequired())
 	{
+		// Credentials
 		api.GET("/credentials", credentialHandler.ListCredentials)
 		api.POST("/credentials", credentialHandler.CreateCredential)
 		// later: PUT /credentials/:id, DELETE /credentials/:id
+
+		// Security questions
+		api.GET("/credentials/:credentialId/security-questions", securityQuestionHandler.ListForCredential)
+		api.POST("/security-questions", securityQuestionHandler.Create)
+		api.DELETE("/security-questions/:id", securityQuestionHandler.Delete)
 	}
 
 	return router
